@@ -1,6 +1,6 @@
 import express from 'express';
-import doctorRoutes from "./routes/doctorRoutes.js";
 import db from './config/db.js';
+import doctorRoutes from './routes/doctorRoutes.js';
 
 const app = express();
 const port = 5000;
@@ -17,6 +17,7 @@ app.use(express.static('public'));
 
 
 app.use("/api/doctors", doctorRoutes);
+app.get("/", doctorRoutes)
 
 // 3. Start Server
 app.listen(port, () => {
