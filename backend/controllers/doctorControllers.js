@@ -133,3 +133,39 @@ export const getDoctors = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+export const getDoctorById = async (req, res) => {
+  try {
+    const { id } = req.params; 
+
+    const sql = `
+      SELECT 
+        d.*, 
+        c.name as city_name, 
+        s.name as speciality_name 
+      FROM doctors d
+      LEFT JOIN cities c ON d.city_id = c.id
+      LEFT JOIN specialities s ON d.speciality_id = s.id
+      WHERE d.id = ?
+    `;
+
+    const [rows] = await db.query(sql, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Doctor not found" });
+    }
+
+    const doctor = rows[0];
+
+    await db.query("UPDATE doctors SET search_count = search_count + 1 WHERE id = ?", [id]);
+
+    res.json({
+      success: true,
+      data: doctor
+    });
+
+  } catch (error) {
+    console.error("Get Doctor Details Error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
