@@ -5,6 +5,6 @@ import { registerDoctor , getDoctors, getDoctorById } from '../controllers/docto
 const router = express.Router();
 
 router.post('/register', upload.single('profile_picture'), registerDoctor);
-router.get('/list', getDoctors);
+router.get('/', getDoctors);
 router.get('/:id', getDoctorById);
 export default router;

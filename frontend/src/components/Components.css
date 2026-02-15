@@ -1,0 +1,28 @@
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 40px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+.nav-logo { font-size: 1.5rem; font-weight: bold; color: #F26E21; text-decoration: none; }
+.nav-links a { margin-left: 20px; text-decoration: none; color: #333; font-weight: 500; }
+
+/* Doctor Card */
+.doctor-card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 20px;
+  width: 260px;
+  text-align: center;
+  transition: 0.3s;
+  cursor: pointer;
+}
+.doctor-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.card-img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.card-name { font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; }
+.card-spec { color: #F26E21; font-size: 0.9rem; font-weight: 500; margin-bottom: 10px; }
+.card-stats { font-size: 0.8rem; color: #666; display: flex; justify-content: center; gap: 10px; border-top: 1px solid #f4f4f4; padding-top: 10px; }
+.card-btn { background: #101828; color: white; width: 100%; border: none; padding: 10px; border-radius: 6px; margin-top: 15px; cursor: pointer; }
