@@ -8,7 +8,14 @@ export const fetchSpecialities = createAsyncThunk('data/fetchSpecialities', asyn
 export const fetchTopDoctors = createAsyncThunk('doctors/fetchTop', async () => (await API.get('/doctors?sort=top&limit=4')).data.data);
 export const fetchDoctors = createAsyncThunk('doctors/fetchAll', async (params) => (await API.get('/doctors', { params })).data);
 export const fetchDoctorById = createAsyncThunk('doctors/fetchOne', async (id) => (await API.get(`/doctors/${id}`)).data.data);
-export const registerDoctor = createAsyncThunk('doctors/register', async (formData) => await API.post('/doctors/register', formData));
+export const registerDoctor = createAsyncThunk('doctors/register', async (formData, { rejectWithValue }) => {
+  try {
+    const response = await API.post('/doctors/register', formData);
+    return response.data;
+  } catch (err) {
+    return rejectWithValue(err.response.data); // Forward backend error message
+  }
+});
 
 // SLICE
 const doctorSlice = createSlice({
@@ -26,9 +33,9 @@ const doctorSlice = createSlice({
       .addCase(fetchTopDoctors.fulfilled, (state, action) => { state.topDoctors = action.payload; })
       .addCase(fetchDoctorById.fulfilled, (state, action) => { state.selectedDoctor = action.payload; })
       .addCase(fetchDoctors.fulfilled, (state, action) => {
-    if(action.meta.arg.page === 1) state.list = action.payload.data; // THIS IS CORRECT
-    else state.list = [...state.list, ...action.payload.data];
-});
+        if (action.meta.arg.page === 1) state.list = action.payload.data;
+        else state.list = [...state.list, ...action.payload.data];
+      });
   }
 });
 

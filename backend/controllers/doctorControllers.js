@@ -1,83 +1,101 @@
 import db from '../config/db.js';
 
 export const registerDoctor = async (req, res) => {
-    try {
-        const {
-            full_name,
-            gender,
-            age,
-            email,
-            phone_number,
-            city_id,         //id from dropdown
-            speciality_id,   //id from dropdown
-            institute_name,
-            degree_name,
-            experience_years,
-            consultation_fee
-        } = req.body;
+  try {
+    const {
+      full_name,
+      gender,
+      age,
+      email,
+      phone_number,
+      city_id,
+      speciality_id,
+      institute_name,
+      degree_name,
+      experience_years,
+      consultation_fee
+    } = req.body;
 
-        const profile_picture_url = req.file ? `/uploads/${req.file.filename}` : null;
+    const profile_picture_url = req.file ? `/uploads/${req.file.filename}` : null;
 
-        if (!full_name || !email || !consultation_fee || !city_id || !speciality_id) {
-            return res.status(400).json({ success: false, message: "Missing required fields" });
-        }
+    // --- 1. Basic Field Check ---
+    if (!full_name || !email || !phone_number || !consultation_fee || !city_id || !speciality_id) {
+      return res.status(400).json({ success: false, message: "Missing required fields (Name, Email, Phone, Fee, City, Speciality)" });
+    }
 
-        const [existing] = await db.query(
-            "SELECT id FROM doctors WHERE email = ? OR phone_number = ?",
-            [email, phone_number]
-        );
+    // --- 2. Email Validation (Regex) ---
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ success: false, message: "Invalid Email Format" });
+    }
 
-        if (existing.length > 0) {
-            return res.status(409).json({ success: false, message: "Doctor with this Email or Phone already exists." });
-        }
+    // --- 3. Phone Validation (10 Digits) ---
+    if (phone_number.length < 10) {
+      return res.status(400).json({ success: false, message: "Phone number must be at least 10 digits" });
+    }
 
-        // 1. Check if City Exists
-        const [cityCheck] = await db.query("SELECT id FROM cities WHERE id = ?", [city_id]);
-        if (cityCheck.length === 0) {
-            // Better than crashing
-            return res.status(400).json({ success: false, message: "Invalid City Selected" });
-        }
-        // 2. Check if Speciality Exists
-        const [specCheck] = await db.query("SELECT id FROM specialities WHERE id = ?", [speciality_id]);
-        if (specCheck.length === 0) {
-            return res.status(400).json({ success: false, message: "Invalid Speciality Selected" });
-        }
+    // --- 4. Logic Checks ---
+    if (age < 23 || age > 100) { // Doctors are usually adults!
+      return res.status(400).json({ success: false, message: "Please provide a valid age (23-100)" });
+    }
+    if (consultation_fee < 0) {
+      return res.status(400).json({ success: false, message: "Consultation Fee cannot be negative" });
+    }
 
-        const sql = `
+    const [existing] = await db.query(
+      "SELECT id FROM doctors WHERE email = ? OR phone_number = ?",
+      [email, phone_number]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ success: false, message: "Doctor with this Email or Phone already exists." });
+    }
+
+    const [cityCheck] = await db.query("SELECT id FROM cities WHERE id = ?", [city_id]);
+    if (cityCheck.length === 0) {
+      return res.status(400).json({ success: false, message: "Invalid City Selected" });
+    }
+
+    const [specCheck] = await db.query("SELECT id FROM specialities WHERE id = ?", [speciality_id]);
+    if (specCheck.length === 0) {
+      return res.status(400).json({ success: false, message: "Invalid Speciality Selected" });
+    }
+
+    const sql = `
       INSERT INTO doctors (
         full_name, gender, age, email, phone_number, profile_picture_url,
         city_id, speciality_id, institute_name, degree_name, experience_years, consultation_fee
       ) VALUES (?)
     `;
 
-        const values = [
-            full_name, gender, age, email, phone_number, profile_picture_url,
-            city_id, speciality_id, institute_name, degree_name, experience_years, consultation_fee
-        ];
+    const values = [
+      full_name, gender, age, email, phone_number, profile_picture_url,
+      city_id, speciality_id, institute_name, degree_name, experience_years, consultation_fee
+    ];
 
-        const [result] = await db.query(sql, [values]);
+    const [result] = await db.query(sql, [values]);
 
-        res.status(201).json({
-            success: true,
-            message: "Doctor registered successfully!",
-            doctorId: result.insertId
-        });
+    res.status(201).json({
+      success: true,
+      message: "Doctor registered successfully!",
+      doctorId: result.insertId
+    });
 
-    } catch (error) {
-        console.error("Registration Error:", error);
-        res.status(500).json({ success: false, message: error.message });
-    }
+  } catch (error) {
+    console.error("Registration Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 export const getDoctors = async (req, res) => {
   try {
-    const { 
-      search, 
-      city, 
-      speciality, 
-      sort, 
-      page = 1, 
-      limit = 10 
+    const {
+      search,
+      city,
+      speciality,
+      sort,
+      page = 1,
+      limit = 10
     } = req.query;
 
     const offset = (page - 1) * limit;
@@ -96,7 +114,7 @@ export const getDoctors = async (req, res) => {
     `;
 
     if (city) {
-      sql += ` AND c.name = ?`; 
+      sql += ` AND c.name = ?`;
       queryParams.push(city);
     }
 
@@ -107,7 +125,7 @@ export const getDoctors = async (req, res) => {
 
     if (search) {
       sql += ` AND (d.full_name LIKE ? OR s.name LIKE ?)`;
-      const searchTerm = `%${search}%`; 
+      const searchTerm = `%${search}%`;
       queryParams.push(searchTerm, searchTerm);
     }
 
@@ -117,7 +135,7 @@ export const getDoctors = async (req, res) => {
       sql += ` ORDER BY d.id DESC`;
     }
 
-    sql += ` LIMIT ? OFFSET ?`;
+    sql += ` LIMIT ? OFFSET ?`; //for pagination
     queryParams.push(parseInt(limit), parseInt(offset));
 
     const [rows] = await db.query(sql, queryParams);
@@ -136,7 +154,7 @@ export const getDoctors = async (req, res) => {
 
 export const getDoctorById = async (req, res) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
 
     const sql = `
       SELECT 

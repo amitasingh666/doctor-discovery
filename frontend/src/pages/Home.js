@@ -42,7 +42,6 @@ const Home = () => {
     <div className="page-container">
       <h1 style={{ textAlign: 'center', marginBottom: '10px' }}>Find Your Expert Doctor</h1>
 
-      {/* SECTION A: Search by Name */}
       <div className="hero-box" style={{ maxWidth: '600px', margin: '0 auto 20px' }}>
         <input
           className="hero-input"
@@ -55,10 +54,8 @@ const Home = () => {
         </button>
       </div>
 
-      {/* SECTION B: Filter by City & Speciality */}
       <div className="hero-box" style={{ maxWidth: '800px', margin: '0 auto 40px', background: '#f8f9fa' }}>
 
-        {/* City Dropdown */}
         <select
           className="hero-input"
           value={selectedCity}
@@ -66,11 +63,10 @@ const Home = () => {
         >
           <option value="">Select City</option>
           {cities.map(c => (
-            <option key={c.id} value={c.name}>{c.name}</option>
+            <option key={c.id} value={c.name}> {c.name} </option>
           ))}
         </select>
 
-        {/* Speciality Dropdown (As requested) */}
         <select
           className="hero-input"
           value={selectedSpec}
@@ -78,7 +74,7 @@ const Home = () => {
         >
           <option value="">Select Speciality</option>
           {specialities.map(s => (
-            <option key={s.id} value={s.name}>{s.name}</option>
+            <option key={s.id} value={s.name}> {s.name} </option>
           ))}
         </select>
 
@@ -87,7 +83,6 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Specialities */}
       <div className="section-title">Specialities</div>
       <div className="pills-row">
         {specialities.map(s => (
@@ -95,7 +90,6 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Top Doctors */}
       <div className="section-title">Most Searched Doctors</div>
       <div className="pills-row">
         {topDoctors.map(doc => <DoctorCard key={doc.id} doc={doc} />)}

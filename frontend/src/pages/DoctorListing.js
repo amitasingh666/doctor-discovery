@@ -1,5 +1,4 @@
-/* src/pages/DoctorListing.js */
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { fetchDoctors, fetchCities, fetchSpecialities, resetList } from '../features/doctorSlice';
@@ -10,7 +9,7 @@ const DoctorListing = () => {
    const dispatch = useDispatch();
    const [searchParams, setSearchParams] = useSearchParams();
 
-   const { list, cities, specialities } = useSelector((state) => state.doctors);
+   const { list, cities, specialities, status } = useSelector((state) => state.doctors);
 
    const [search, setSearch] = useState(searchParams.get('search') || '');
    const [city, setCity] = useState(searchParams.get('city') || '');
@@ -21,7 +20,6 @@ const DoctorListing = () => {
       dispatch(fetchCities());
       dispatch(fetchSpecialities());
 
-      // Initial Fetch
       dispatch(resetList());
       dispatch(fetchDoctors({
          search: searchParams.get('search') || '',
@@ -31,28 +29,25 @@ const DoctorListing = () => {
       }));
    }, [dispatch]);
 
-   // 1. Search by Name ONLY
    const handleNameSearch = () => {
-      // We keep city/speciality empty or current? Usually separate searches mean exclusive.
-      // But for a listing page, usually you might want to search "Dr. Smith" in "Mumbai".
-      // I will keep all params to be safe, but focus on the action.
-
       dispatch(resetList());
+      setPage(1);
       setSearchParams({ search, city, speciality });
       dispatch(fetchDoctors({ search, city, speciality, page: 1 }));
    };
 
-   // 2. Search by Filters ONLY
    const handleFilterSearch = () => {
       dispatch(resetList());
+      setPage(1);
       setSearchParams({ search, city, speciality });
       dispatch(fetchDoctors({ search, city, speciality, page: 1 }));
    };
 
    const handleClear = () => {
       setSearch(''); setCity(''); setSpeciality('');
-      setSearchParams({}); // Clear URL params
+      setSearchParams({});
       dispatch(resetList());
+      setPage(1);
       dispatch(fetchDoctors({ search: '', city: '', speciality: '', page: 1 }));
    }
 
@@ -65,9 +60,8 @@ const DoctorListing = () => {
    return (
       <div className="page-container">
 
+         {/* HEADER */}
          <div className="search-header-container">
-
-            {/* ROW 1: Name Search */}
             <div className="search-row">
                <input
                   className="search-input"
@@ -80,7 +74,6 @@ const DoctorListing = () => {
                </button>
             </div>
 
-            {/* ROW 2: Filters */}
             <div className="filter-row">
                <select
                   className="hero-input"
@@ -100,7 +93,6 @@ const DoctorListing = () => {
                   {specialities.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                </select>
 
-               {/* NEW BUTTON FOR FILTER SEARCH */}
                <button className="btn-search" style={{ background: '#101828' }} onClick={handleFilterSearch}>
                   Apply Filters
                </button>
@@ -109,22 +101,29 @@ const DoctorListing = () => {
                   Clear
                </button>
             </div>
-
          </div>
 
+         {/* DOCTOR GRID */}
          {list.length > 0 ? (
             <div className="doctor-grid">
                {list.map(doc => <DoctorCard key={doc.id} doc={doc} />)}
             </div>
          ) : (
             <div style={{ textAlign: 'center', width: '100%', padding: '50px', color: '#888' }}>
-               <h3>No doctors found.</h3>
+               <h3>No doctors found based on your filters.</h3>
             </div>
          )}
 
-         {list.length >= 10 && (
+         {/* Load More Button */}
+         {list.length > 0 && (
             <div style={{ textAlign: 'center', marginTop: '40px' }}>
-               <button className="hero-btn" onClick={handleLoadMore}>Load More</button>
+               <button
+                  className="hero-btn"
+                  onClick={handleLoadMore}
+                  disabled={status === 'loading'}
+               >
+                  {status === 'loading' ? 'Loading...' : 'Load More'}
+               </button>
             </div>
          )}
 

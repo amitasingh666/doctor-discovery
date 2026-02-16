@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchDoctorById } from '../features/doctorSlice';
@@ -23,11 +23,11 @@ const DoctorDetail = () => {
       </div>
 
       <div style={{ background: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #eee' }}>
-         <h3 className="section-title" style={{ marginTop: 0 }}>Details</h3>
-         <div className="info-row"><span className="info-label">Degree</span><span className="info-val">{selectedDoctor.degree_name}</span></div>
-         <div className="info-row"><span className="info-label">Experience</span><span className="info-val">{selectedDoctor.experience_years} Year+</span></div>
-         <div className="info-row"><span className="info-label">Fee</span><span className="info-val">₹{selectedDoctor.consultation_fee}</span></div>
-         <div className="info-row"><span className="info-label">Contact</span><span className="info-val">{selectedDoctor.phone_number}</span></div>
+        <h3 className="section-title" style={{ marginTop: 0 }}>Details</h3>
+        <div className="info-row"><span className="info-label">Degree</span><span className="info-val">{selectedDoctor.degree_name}</span></div>
+        <div className="info-row"><span className="info-label">Experience</span><span className="info-val">{selectedDoctor.experience_years} Year+</span></div>
+        <div className="info-row"><span className="info-label">Fee</span><span className="info-val">₹{selectedDoctor.consultation_fee}</span></div>
+        <div className="info-row"><span className="info-label">Contact</span><span className="info-val">{selectedDoctor.phone_number}</span></div>
       </div>
     </div>
   );

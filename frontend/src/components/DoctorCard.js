@@ -16,8 +16,8 @@ const DoctorCard = ({ doc }) => {
       <div className="card-name">{doc.full_name}</div>
       <div className="card-spec">{doc.speciality_name}</div>
       <div className="card-stats">
-        <span>⭐ {doc.experience_years} Yrs</span>
-        <span>💰 ₹{doc.consultation_fee}</span>
+        <span>{doc.experience_years} Yrs</span>
+        <span>₹{doc.consultation_fee}</span>
       </div>
       <button className="card-btn">View Profile</button>
     </div>

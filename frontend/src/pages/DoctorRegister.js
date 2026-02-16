@@ -9,15 +9,29 @@ const DoctorRegister = () => {
    const [formData, setFormData] = useState({});
    const [file, setFile] = useState(null);
 
-   useEffect(() => { dispatch(fetchCities()); dispatch(fetchSpecialities()); }, [dispatch]);
+   useEffect(() => {
+      dispatch(fetchCities());
+      dispatch(fetchSpecialities());
+   }, [dispatch]);
 
    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
    const handleSubmit = (e) => {
-      e.preventDefault();
+
       const data = new FormData();
       Object.keys(formData).forEach(k => data.append(k, formData[k]));
-      if (file) data.append('profile_picture', file);
-      dispatch(registerDoctor(data)).then(() => alert("Saved!"));
+      if (file) {
+         data.append('profile_picture', file);
+      }
+
+      dispatch(registerDoctor(data))
+         .unwrap()
+         .then(() => {
+            alert("Doctor Registered Successfully!");
+         })
+         .catch((error) => {
+            console.error("Registration Error:", error);
+            alert(error.message || "Registration Failed");
+         });
    };
 
    return (
@@ -33,7 +47,7 @@ const DoctorRegister = () => {
             <div className="grid-2">
                <input name="age" type="number" placeholder="Age" onChange={handleChange} className="form-input" />
                <select name="gender" onChange={handleChange} className="form-input">
-                  <option>Male</option><option>Female</option>
+                  <option>Male</option><option>Female</option><option>Other</option>
                </select>
             </div>
 
